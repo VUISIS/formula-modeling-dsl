@@ -1,0 +1,30 @@
+domain Intermediate
+{
+
+    // Probably want some kind of enumeration for type instead of string in many places
+
+    Component ::= new (name : String).
+
+    Condition ::= new (comp : Component, name : String).
+
+    Connection ::= new (from : Component, to: Component).
+    ConditionalConnection ::= new (from : Component, to : Component, cond : Condition).
+
+    Subcomponent ::= new (from : Component, to: Component).
+    ConditionalSubcomponent ::= new (from : Component, to : Component, cond : Condition).
+    
+    Port ::= new (component: Component, name : String, type : String, dataType : String).
+    
+    Attributable ::= Component + Subcomponent + Connection + ConditionalConnection + ConditionalSubcomponent.
+
+    AttributeGroup ::= new (Attributeable: Attributable, name : String).
+    Attribute ::= new (group : AttributeGroup, name : String, value : Integer+String+Boolean).
+
+    Inherit ::= new (parent : Component, child : Component).
+
+    Condition(comp, name) :- Inherit(parent, comp), Condition(parent, name).
+    Connection(comp, to) :- Inherit(parent, comp), Connection(parent, to).
+    Subcomponent(comp, to) :- Inherit(parent, comp), Subcomponent(parent, to).
+    Port(comp, name, type, dataType) :- Inherit(parent, comp), Port(parent, name, type, dataType).
+    AttributeGroup(comp, name) :- Inherit(parent, comp), AttributeGroup(parent, name).
+}

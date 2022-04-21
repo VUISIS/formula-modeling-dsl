@@ -1,0 +1,33 @@
+model Guidance of Intermediate at "Intermediate.4ml"
+{
+    Sensor is Component("Sensor").
+    Port(Sensor, "turn_on", "event", "").
+    Port(Sensor, "turn_off", "event", "").
+
+    SensorModes is AttributeGroup(Sensor, "modes").
+
+    sensor_on_mode is Condition(Sensor, "on").
+    sensor_off_mode is Condition(Sensor, "off").
+    sensor_fail_mode is Condition(Sensor, "fail").
+
+    
+    NavigationalSensor is Component("NavigationalSensor").
+    Inherit(Sensor, NavigationalSensor).
+
+    NavigationalSensorNotDependentOnRadio is Component("NavigationalSensorNotDependentOnRadio").
+    Inherit(NavigationalSensor, NavigationalSensorDependentOnRadio).
+
+    NavigationalSensorDependentOnRadio is Component("NavigationalSensorDependentOnRadio").
+    Inherit(NavigationalSensor, NavigationalSensorDependentOnRadio).
+
+    Ins is Component("INS").
+    Inherit(NavigationalSensorNotDependentOnRadio, Ins).
+
+    out_current_latitude is Port(Ins, "out_current_latitude", "out", "Base_Types::Float").
+    out_current_longitude is Port(Ins, "out_current_longitude", "out", "Base_Types::Float").
+    out_current_altitude is Port(Ins, "out_current_altitude", "out", "Base_Types::Float").
+    out_current is Port(Ins, "out_current", "out", "Base_Types::Float").
+
+    in_reset is Port(Ins, "in_reset", "in", "").
+    in_recalibrate is Port(Ins, "in_recalibrate", "in", "").
+}
