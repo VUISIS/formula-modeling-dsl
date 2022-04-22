@@ -23,10 +23,13 @@ model Guidance of Intermediate at "Intermediate.4ml"
     Gps is Component("GPS").
     Inherit(NavigationalSensorDependentOnRadio, Gps).
 
+    MissileGuidanceBusImpl is Component("MissileGuidanceBus.Impl").
+
     gps_out_current_latitude is Port(Gps, "out_current_latitude", "out", "Base_Types::Float").
     gps_out_current_longitude is Port(Gps, "out_current_longitude", "out", "Base_Types::Float").
     gps_out_current_altitude is Port(Gps, "out_current_altitude", "out", "Base_Types::Float").
     gps_out_current is Port(Gps, "out_current", "out", "Base_Types::Float").
+    gps_tcpa is Requires(Gps, MissileGuidanceBusImpl).
 
     gps_in_reset is Port(Gps, "in_reset", "in", "").
     gps_in_recalibrate is Port(Gps, "in_recalibrate", "in", "").
@@ -70,5 +73,8 @@ model Guidance of Intermediate at "Intermediate.4ml"
     SeekerTrackerComponent is Component("SeekerTrackerComponen").
     Inherit(Sensor, SeekerTrackerComponent).
 
-    stc_out_current_range is Port(SeekerTrackerComponent, "out_curret_range", "out", "Base_Types::Float").
+    stc_out_current_range is Port(SeekerTrackerComponent, "out_current_range", "out", "Base_Types::Float").
+
+    testComponent is Component("Test").
+    Subcomponent(testComponent, Gps).
 }

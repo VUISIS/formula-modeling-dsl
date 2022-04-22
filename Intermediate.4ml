@@ -12,6 +12,7 @@ domain Intermediate
 
     Subcomponent ::= new (from : Component, to: Component).
     ConditionalSubcomponent ::= new (from : Component, to : Component, cond : Condition).
+    Requires ::= new (comp : Component, needs: Component).
     
     Port ::= new (component: Component, name : String, type : String, dataType : String).
     
@@ -25,6 +26,11 @@ domain Intermediate
     Condition(comp, name) :- Inherit(parent, comp), Condition(parent, name).
     Connection(comp, to) :- Inherit(parent, comp), Connection(parent, to).
     Subcomponent(comp, to) :- Inherit(parent, comp), Subcomponent(parent, to).
+    Requires(comp, needs) :- Inherit(parent, comp), Requires(parent, needs).
     Port(comp, name, type, dataType) :- Inherit(parent, comp), Port(parent, name, type, dataType).
     AttributeGroup(comp, name) :- Inherit(parent, comp), AttributeGroup(parent, name).
+
+    missingRequired :- Requires(comp, needs), Subcomponent(parent, comp), no Subcomponent(parent, needs).
+
+    conforms no missingRequired.
 }
