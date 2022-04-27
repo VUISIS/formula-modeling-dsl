@@ -1,80 +1,439 @@
-model Guidance of Intermediate at "Intermediate.4ml"
+model missile_guidance_v5 of Intermediate at "Intermediate.4ml"
 {
-    Sensor is Component("Sensor").
-    Port(Sensor, "turn_on", "event", "").
-    Port(Sensor, "turn_off", "event", "").
+  Sensor is Component("Sensor").
+  Sensor_turn_on is Port(Sensor, "turn_on").
+  PortType(Sensor_turn_on, "in", "").
+  Sensor_turn_off is Port(Sensor, "turn_off").
+  PortType(Sensor_turn_off, "in", "").
+  Sensor_on_mode is Condition(Sensor, "mode").
+  Sensor_off_mode is Condition(Sensor, "mode").
+  InitialCondition(Sensor,Sensor_off_mode).
+  Sensor_fail_mode is Condition(Sensor, "mode").
 
-    SensorModes is AttributeGroup(Sensor, "modes").
+  NavigationalSensor is Component("NavigationalSensor").
+  Inherit(Sensor,NavigationalSensor).
 
-    sensor_on_mode is Condition(Sensor, "on").
-    sensor_off_mode is Condition(Sensor, "off").
-    sensor_fail_mode is Condition(Sensor, "fail").
+  NavigationalSensorNotDependentOnRadio is Component("NavigationalSensorNotDependentOnRadio").
+  Inherit(NavigationalSensor,NavigationalSensorNotDependentOnRadio).
 
-    
-    NavigationalSensor is Component("NavigationalSensor").
-    Inherit(Sensor, NavigationalSensor).
+  NavigationalSensorDependentOnRadio is Component("NavigationalSensorDependentOnRadio").
+  Inherit(NavigationalSensor,NavigationalSensorDependentOnRadio).
 
-    NavigationalSensorNotDependentOnRadio is Component("NavigationalSensorNotDependentOnRadio").
-    Inherit(NavigationalSensor, NavigationalSensorDependentOnRadio).
+  Gps is Component("Gps").
+  Inherit(NavigationalSensorDependentOnRadio,Gps).
+  Gps_out_current_latitude is Port(Gps, "out_current_latitude").
+  PortType(Gps_out_current_latitude, "out", "Base_Types::Float").
+  Gps_out_current_longitude is Port(Gps, "out_current_longitude").
+  PortType(Gps_out_current_longitude, "out", "Base_Types::Float").
+  Gps_out_current_altitude is Port(Gps, "out_current_altitude").
+  PortType(Gps_out_current_altitude, "out", "Base_Types::Float").
+  Gps_out_current is Port(Gps, "out_current").
+  PortType(Gps_out_current, "out", "Base_Types::Float").
+  Gps_in_reset is Port(Gps, "in_reset").
+  PortType(Gps_in_reset, "in", "").
+  Requires(Gps, MissileGuidanceBus_Impl).
+  Gps_TCPA is Port(Gps, "TCPA").
+  PortType(Gps_TCPA, "out", "MissileGuidanceBus.Impl").
 
-    NavigationalSensorDependentOnRadio is Component("NavigationalSensorDependentOnRadio").
-    Inherit(NavigationalSensor, NavigationalSensorDependentOnRadio).
+  Gps_Impl is Component("Gps_Impl").
+  Inherit(Gps, Gps_Impl).
 
-    Gps is Component("GPS").
-    Inherit(NavigationalSensorDependentOnRadio, Gps).
+  Ins is Component("Ins").
+  Inherit(NavigationalSensorNotDependentOnRadio,Ins).
+  Ins_out_current_position is Port(Ins, "out_current_position").
+  PortType(Ins_out_current_position, "out", "Base_Types::Float").
+  Ins_out_current_velocity is Port(Ins, "out_current_velocity").
+  PortType(Ins_out_current_velocity, "out", "Base_Types::Float").
+  Ins_out_current_direction is Port(Ins, "out_current_direction").
+  PortType(Ins_out_current_direction, "out", "Base_Types::Float").
+  Ins_out_current is Port(Ins, "out_current").
+  PortType(Ins_out_current, "out", "Base_Types::Float").
+  Ins_in_reset is Port(Ins, "in_reset").
+  PortType(Ins_in_reset, "in", "").
+  Ins_in_recalibrate_from_gps is Port(Ins, "in_recalibrate_from_gps").
+  PortType(Ins_in_recalibrate_from_gps, "in", "").
+  Requires(Ins, MissileGuidanceBus_Impl).
+  Ins_TCPA is Port(Ins, "TCPA").
+  PortType(Ins_TCPA, "out", "MissileGuidanceBus.Impl").
 
-    MissileGuidanceBusImpl is Component("MissileGuidanceBus.Impl").
+  Ins_Impl is Component("Ins_Impl").
+  Inherit(Ins, Ins_Impl).
 
-    gps_out_current_latitude is Port(Gps, "out_current_latitude", "out", "Base_Types::Float").
-    gps_out_current_longitude is Port(Gps, "out_current_longitude", "out", "Base_Types::Float").
-    gps_out_current_altitude is Port(Gps, "out_current_altitude", "out", "Base_Types::Float").
-    gps_out_current is Port(Gps, "out_current", "out", "Base_Types::Float").
-    gps_tcpa is Requires(Gps, MissileGuidanceBusImpl).
+  ThreeAxisAccelerometer is Component("ThreeAxisAccelerometer").
+  Inherit(NavigationalSensorNotDependentOnRadio,ThreeAxisAccelerometer).
+  ThreeAxisAccelerometer_out_x_acceleration is Port(ThreeAxisAccelerometer, "out_x_acceleration").
+  PortType(ThreeAxisAccelerometer_out_x_acceleration, "out", "Base_Types::Float").
+  ThreeAxisAccelerometer_out_y_acceleration is Port(ThreeAxisAccelerometer, "out_y_acceleration").
+  PortType(ThreeAxisAccelerometer_out_y_acceleration, "out", "Base_Types::Float").
+  ThreeAxisAccelerometer_out_z_acceleration is Port(ThreeAxisAccelerometer, "out_z_acceleration").
+  PortType(ThreeAxisAccelerometer_out_z_acceleration, "out", "Base_Types::Float").
+  ThreeAxisAccelerometer_out_current is Port(ThreeAxisAccelerometer, "out_current").
+  PortType(ThreeAxisAccelerometer_out_current, "out", "Base_Types::Float").
+  ThreeAxisAccelerometer_in_reset is Port(ThreeAxisAccelerometer, "in_reset").
+  PortType(ThreeAxisAccelerometer_in_reset, "in", "").
+  Requires(ThreeAxisAccelerometer, MissileGuidanceBus_Impl).
+  ThreeAxisAccelerometer_TCPA is Port(ThreeAxisAccelerometer, "TCPA").
+  PortType(ThreeAxisAccelerometer_TCPA, "out", "MissileGuidanceBus.Impl").
 
-    gps_in_reset is Port(Gps, "in_reset", "in", "").
-    gps_in_recalibrate is Port(Gps, "in_recalibrate", "in", "").
+  ThreeAxisAccelerometer_Impl is Component("ThreeAxisAccelerometer_Impl").
+  Inherit(ThreeAxisAccelerometer, ThreeAxisAccelerometer_Impl).
 
-    Ins is Component("INS").
-    Inherit(NavigationalSensorNotDependentOnRadio, Ins).
+  Actuator is Component("Actuator").
+  Actuator_on_mode is Condition(Actuator, "mode").
+  Actuator_off_mode is Condition(Actuator, "mode").
+  InitialCondition(Actuator,Actuator_off_mode).
+  Actuator_fail_mode is Condition(Actuator, "mode").
 
-    ins_out_current_position is Port(Ins, "out_current_position", "out", "Base_Types::Float").
-    ins_out_current_velocity is Port(Ins, "out_current_velocity", "out", "Base_Types::Float").
-    ins_out_current_direction is Port(Ins, "out_current_direction", "out", "Base_Types::Float").
+  FinControl is Component("FinControl").
+  Inherit(Actuator,FinControl).
+  FinControl_in_desired is Port(FinControl, "in_desired").
+  PortType(FinControl_in_desired, "in", "Base_Types::Float").
+  FinControl_in_abort is Port(FinControl, "in_abort").
+  PortType(FinControl_in_abort, "in", "").
+  Requires(FinControl, MissileGuidanceBus_Impl).
+  FinControl_TCPA is Port(FinControl, "TCPA").
+  PortType(FinControl_TCPA, "out", "MissileGuidanceBus.Impl").
 
-    ins_out_current is Port(Ins, "out_current", "out", "Base_Types::Float").
+  FinControl_Impl is Component("FinControl_Impl").
+  Inherit(FinControl, FinControl_Impl).
 
-    ins_in_reset is Port(Ins, "in_reset", "in", "").
-    ins_in_recalibrate is Port(Ins, "in_recalibrate", "in", "").
+  INSUser is Component("INSUser").
 
-    ThreeAxisAccelerometer is Component("ThreeAxisAccelerometer").
-    Inherit(NavigationalSensorNotDependentOnRadio, ThreeAxisAccelerometer).
+  GPSUser is Component("GPSUser").
 
-    taa_out_x_acceleration is Port(ThreeAxisAccelerometer, "out_x_acceleration", "out", "Base_Types::Float").
-    taa_out_y_acceleration is Port(ThreeAxisAccelerometer, "out_y_acceleration", "out", "Base_Types::Float").
-    taa_out_z_acceleration is Port(ThreeAxisAccelerometer, "out_z_acceleration", "out", "Base_Types::Float").
-    taa_out_current is Port(ThreeAxisAccelerometer, "out_current", "out", "Base_Types::Float").
-    taa_in_reset is Port(ThreeAxisAccelerometer, "in_reset", "in", "").
+  SeekerTrackerComponent is Component("SeekerTrackerComponent").
+  Inherit(Sensor,SeekerTrackerComponent).
+  SeekerTrackerComponent_out_current_range is Port(SeekerTrackerComponent, "out_current_range").
+  PortType(SeekerTrackerComponent_out_current_range, "out", "Base_Types::Float").
+  SeekerTrackerComponent_out_current_look_angle is Port(SeekerTrackerComponent, "out_current_look_angle").
+  PortType(SeekerTrackerComponent_out_current_look_angle, "out", "Base_Types::Float").
+  SeekerTrackerComponent_in_set_seeker_angle is Port(SeekerTrackerComponent, "in_set_seeker_angle").
+  PortType(SeekerTrackerComponent_in_set_seeker_angle, "in", "Base_Types::Float").
+  SeekerTrackerComponent_in_target is Port(SeekerTrackerComponent, "in_target").
+  PortType(SeekerTrackerComponent_in_target, "in", "Base_Types::Float").
+  SeekerTrackerComponent_in_abort is Port(SeekerTrackerComponent, "in_abort").
+  PortType(SeekerTrackerComponent_in_abort, "in", "").
+  SeekerTrackerComponent_in_gps_current is Port(SeekerTrackerComponent, "in_gps_current").
+  PortType(SeekerTrackerComponent_in_gps_current, "in", "Base_Types::Float").
+  SeekerTrackerComponent_in_ins_current is Port(SeekerTrackerComponent, "in_ins_current").
+  PortType(SeekerTrackerComponent_in_ins_current, "in", "Base_Types::Float").
+  SeekerTrackerComponent_out_desired is Port(SeekerTrackerComponent, "out_desired").
+  PortType(SeekerTrackerComponent_out_desired, "out", "Base_Types::Float").
+  SeekerTrackerComponent_out_abort is Port(SeekerTrackerComponent, "out_abort").
+  PortType(SeekerTrackerComponent_out_abort, "out", "").
+  SeekerTrackerComponent_out_cew is Port(SeekerTrackerComponent, "out_cew").
+  PortType(SeekerTrackerComponent_out_cew, "out", "Base_Types::Integer").
+  Requires(SeekerTrackerComponent, MissileGuidanceBus_Impl).
+  SeekerTrackerComponent_TCPA is Port(SeekerTrackerComponent, "TCPA").
+  PortType(SeekerTrackerComponent_TCPA, "out", "MissileGuidanceBus.Impl").
+  SeekerTrackerComponent_props is AttributeGroup(SeekerTrackerComponent, "Properties").
+  Attribute(SeekerTrackerComponent_props, "TA1_Properties::current_range", 0.0).
 
-    Actuator is Component("Actuator").
-    actuator_on_mode is Condition(Actuator, "on").
-    actuator_off_mode is Condition(Actuator, "off").
-    actuator_fail_mode is Condition(Actuator, "fail").
-    
-    FinControl is Component("FinControl").
-    fc_in_desired is Port(FinControl, "in_desired", "in", "Base_Types::Float").
-    fc_in_abort is Port(FinControl, "in_abort", "in", "").
+  SeekerTrackerComponent_Impl is Component("SeekerTrackerComponent_Impl").
+  Inherit(SeekerTrackerComponent, SeekerTrackerComponent_Impl).
 
-    FinControlImpl is Component("FinControl").
-    Inherit(FinControl, FinControlImpl).
+  TimeToAbortMission is Component("TimeToAbortMission").
+  TimeToAbortMission_ttam is Port(TimeToAbortMission, "ttam").
+  PortType(TimeToAbortMission_ttam, "out", "Base_Types::Integer").
+  Requires(TimeToAbortMission, MissileGuidanceBus_Impl).
+  TimeToAbortMission_TCPA is Port(TimeToAbortMission, "TCPA").
+  PortType(TimeToAbortMission_TCPA, "out", "MissileGuidanceBus.Impl").
 
-    INSUser is Component("INSUser").
-    GPSUser is Component("GPSUser").
+  TimeToAbortMission_Impl is Component("TimeToAbortMission_Impl").
+  Inherit(TimeToAbortMission, TimeToAbortMission_Impl).
 
-    SeekerTrackerComponent is Component("SeekerTrackerComponen").
-    Inherit(Sensor, SeekerTrackerComponent).
+  MissileGuidanceProgram is Component("MissileGuidanceProgram").
+  MissileGuidanceProgram_in_target is Port(MissileGuidanceProgram, "in_target").
+  PortType(MissileGuidanceProgram_in_target, "in", "Base_Types::Float").
+  MissileGuidanceProgram_in_abort is Port(MissileGuidanceProgram, "in_abort").
+  PortType(MissileGuidanceProgram_in_abort, "in", "").
+  MissileGuidanceProgram_in_ttt is Port(MissileGuidanceProgram, "in_ttt").
+  PortType(MissileGuidanceProgram_in_ttt, "in", "Base_Types::Integer").
+  MissileGuidanceProgram_time_to_target is Port(MissileGuidanceProgram, "time_to_target").
+  PortType(MissileGuidanceProgram_time_to_target, "out", "Base_Types::Integer").
+  MissileGuidanceProgram_out_reset is Port(MissileGuidanceProgram, "out_reset").
+  PortType(MissileGuidanceProgram_out_reset, "out", "").
+  MissileGuidanceProgram_out_target is Port(MissileGuidanceProgram, "out_target").
+  PortType(MissileGuidanceProgram_out_target, "out", "Base_Types::Float").
+  MissileGuidanceProgram_out_abort is Port(MissileGuidanceProgram, "out_abort").
+  PortType(MissileGuidanceProgram_out_abort, "out", "").
+  Requires(MissileGuidanceProgram, MissileGuidanceBus_Impl).
+  MissileGuidanceProgram_TCPA is Port(MissileGuidanceProgram, "TCPA").
+  PortType(MissileGuidanceProgram_TCPA, "out", "MissileGuidanceBus.Impl").
 
-    stc_out_current_range is Port(SeekerTrackerComponent, "out_current_range", "out", "Base_Types::Float").
+  MissileGuidanceProgram_Impl is Component("MissileGuidanceProgram_Impl").
+  Inherit(MissileGuidanceProgram, MissileGuidanceProgram_Impl).
+  MissileGuidanceProgram_Impl_props is AttributeGroup(MissileGuidanceProgram_Impl, "Properties").
+  Attribute(MissileGuidanceProgram_Impl_props, "TA1_Properties::current_bearing", 0.0).
+  Attribute(MissileGuidanceProgram_Impl_props, "TA1_Properties::desired_bearing", 0.0).
+  Attribute(MissileGuidanceProgram_Impl_props, "TA1_Properties::time_to_target", 0).
 
-    testComponent is Component("Test").
-    Subcomponent(testComponent, Gps).
+  Controller is Component("Controller").
+  Controller_turn_on is Port(Controller, "turn_on").
+  PortType(Controller_turn_on, "in", "").
+  Controller_turn_off is Port(Controller, "turn_off").
+  PortType(Controller_turn_off, "in", "").
+
+  ControllerBoard is Component("ControllerBoard").
+  Inherit(Controller,ControllerBoard).
+  ControllerBoard_program is Port(ControllerBoard, "program").
+  PortType(ControllerBoard_program, "out", "").
+  ControllerBoard_battery_level is Port(ControllerBoard, "battery_level").
+  PortType(ControllerBoard_battery_level, "out", "Base_Types::Float").
+  ControllerBoard_command_execute_window is Port(ControllerBoard, "command_execute_window").
+  PortType(ControllerBoard_command_execute_window, "out", "Base_Types::Float").
+  Requires(ControllerBoard, MissileGuidanceBus_Impl).
+  ControllerBoard_TCPA is Port(ControllerBoard, "TCPA").
+  PortType(ControllerBoard_TCPA, "out", "MissileGuidanceBus.Impl").
+  ControllerBoard_initialize is Port(ControllerBoard, "initialize").
+  PortType(ControllerBoard_initialize, "in", "").
+  ControllerBoard_navigation_test is Port(ControllerBoard, "navigation_test").
+  PortType(ControllerBoard_navigation_test, "in", "").
+  ControllerBoard_abort_mission is Port(ControllerBoard, "abort_mission").
+  PortType(ControllerBoard_abort_mission, "in", "").
+  ControllerBoard_received_command_abort is Port(ControllerBoard, "received_command_abort").
+  PortType(ControllerBoard_received_command_abort, "in", "").
+
+  ControllerBoard_Impl is Component("ControllerBoard_Impl").
+  Inherit(ControllerBoard, ControllerBoard_Impl).
+  ControllerBoard_Impl_props is AttributeGroup(ControllerBoard_Impl, "Properties").
+  Attribute(ControllerBoard_Impl_props, "TA1_Properties::command_execute_window", 0).
+
+  KalmanFilter is Component("KalmanFilter").
+
+  WebServer is Component("WebServer").
+
+  MissileGuidanceDiagnosticsServer is Component("MissileGuidanceDiagnosticsServer").
+  Inherit(WebServer,MissileGuidanceDiagnosticsServer).
+
+  MissileGuidanceDiagnosticsServer_Impl is Component("MissileGuidanceDiagnosticsServer_Impl").
+  Inherit(MissileGuidanceDiagnosticsServer, MissileGuidanceDiagnosticsServer_Impl).
+
+  Switch is Component("Switch").
+
+  Switch_Impl is Component("Switch_Impl").
+  Inherit(Switch, Switch_Impl).
+
+  LocalNetwork is Component("LocalNetwork").
+
+  LocalNetwork_Impl is Component("LocalNetwork_Impl").
+  Inherit(Switch_Impl, LocalNetwork_Impl).
+
+  CellularNetwork is Component("CellularNetwork").
+
+  CellularNetwork_Impl is Component("CellularNetwork_Impl").
+  Inherit(CellularNetwork, CellularNetwork_Impl).
+
+  MCCellularNetwork is Component("MCCellularNetwork").
+
+  MCCellularNetwork_Impl is Component("MCCellularNetwork_Impl").
+  Inherit(CellularNetwork_Impl, MCCellularNetwork_Impl).
+
+  GroundStation is Component("GroundStation").
+  GroundStation_out_target is Port(GroundStation, "out_target").
+  PortType(GroundStation_out_target, "out", "Base_Types::Float").
+  GroundStation_out_abort is Port(GroundStation, "out_abort").
+  PortType(GroundStation_out_abort, "out", "").
+  Requires(GroundStation, MCCellularNetwork_Impl).
+  GroundStation_RFA is Port(GroundStation, "RFA").
+  PortType(GroundStation_RFA, "out", "MCCellularNetwork.Impl").
+  GroundStation_sent_command is Port(GroundStation, "sent_command").
+  PortType(GroundStation_sent_command, "in", "").
+  GroundStation_sent_command_abort is Port(GroundStation, "sent_command_abort").
+  PortType(GroundStation_sent_command_abort, "in", "").
+
+  GroundStation_Impl is Component("GroundStation_Impl").
+  Inherit(GroundStation, GroundStation_Impl).
+
+  NetworkSwitch is Component("NetworkSwitch").
+  NetworkSwitch_route is Port(NetworkSwitch, "route").
+  PortType(NetworkSwitch_route, "inout", "").
+
+  NetworkSwitch_Impl is Component("NetworkSwitch_Impl").
+  Inherit(NetworkSwitch, NetworkSwitch_Impl).
+
+  SwitchPort is Component("SwitchPort").
+
+  SwitchPort_Impl is Component("SwitchPort_Impl").
+  Inherit(SwitchPort, SwitchPort_Impl).
+
+  MissileGuidanceBus is Component("MissileGuidanceBus").
+
+  MissileGuidanceBus_Impl is Component("MissileGuidanceBus_Impl").
+  Inherit(NetworkSwitch_Impl, MissileGuidanceBus_Impl).
+
+  Network is Component("Network").
+
+  Network_Impl is Component("Network_Impl").
+  Inherit(Network, Network_Impl).
+
+  OutsideNetwork is Component("OutsideNetwork").
+  Inherit(Network,OutsideNetwork).
+  OutsideNetwork_exclude_ip_range is Port(OutsideNetwork, "exclude_ip_range").
+  PortType(OutsideNetwork_exclude_ip_range, "out", "Base_Types::String").
+  OutsideNetwork_exclude_ip_mask is Port(OutsideNetwork, "exclude_ip_mask").
+  PortType(OutsideNetwork_exclude_ip_mask, "out", "Base_Types::String").
+
+  OutsideNetwork_Impl is Component("OutsideNetwork_Impl").
+  Inherit(Network_Impl, OutsideNetwork_Impl).
+  OutsideNetwork_Impl_props is AttributeGroup(OutsideNetwork_Impl, "Properties").
+  Attribute(OutsideNetwork_Impl_props, "TA1_Properties::exclude_ip_range", "192.168.0.0").
+  Attribute(OutsideNetwork_Impl_props, "TA1_Properties::exclude_ip_mask", "255.255.0.0").
+
+  Enterprise is Component("Enterprise").
+
+  Enterprise_Impl is Component("Enterprise_Impl").
+  Inherit(Enterprise, Enterprise_Impl).
+
+  Victim is Component("Victim").
+  Inherit(Enterprise,Victim).
+
+  Victim_Impl is Component("Victim_Impl").
+  Inherit(Enterprise_Impl, Victim_Impl).
+
+  Site is Component("Site").
+  Site_ip_range is Port(Site, "ip_range").
+  PortType(Site_ip_range, "out", "").
+  Site_ip_mask is Port(Site, "ip_mask").
+  PortType(Site_ip_mask, "out", "").
+  Site_victim is Port(Site, "victim").
+  PortType(Site_victim, "out", "").
+
+  SwitchedSubnet is Component("SwitchedSubnet").
+  SwitchedSubnet_ip_range is Port(SwitchedSubnet, "ip_range").
+  PortType(SwitchedSubnet_ip_range, "out", "").
+  SwitchedSubnet_ip_mask is Port(SwitchedSubnet, "ip_mask").
+  PortType(SwitchedSubnet_ip_mask, "out", "").
+  SwitchedSubnet_props is AttributeGroup(SwitchedSubnet, "Properties").
+  Attribute(SwitchedSubnet_props, "TA1_Properties::IP_Mask", "255.255.255.0").
+
+  SwitchedSubnet_Impl is Component("SwitchedSubnet_Impl").
+  Inherit(SwitchedSubnet, SwitchedSubnet_Impl).
+  SwitchedSubnet_Impl_props is AttributeGroup(SwitchedSubnet_Impl, "Properties").
+  Attribute(SwitchedSubnet_Impl_props, "TA1_Properties::IP_Base", "192.168.0.0").
+  Attribute(SwitchedSubnet_Impl_props, "TA1_Properties::IP_Mask", "255.255.255.0").
+
+  Authorization_Pool is Component("Authorization_Pool").
+
+  Missile_Pool is Component("Missile_Pool").
+
+  Missile_Pool_Impl is Component("Missile_Pool_Impl").
+  Inherit(Missile_Pool, Missile_Pool_Impl).
+  Missile_Pool_Impl_pool is Port(Missile_Pool_Impl, "pool").
+  PortType(Missile_Pool_Impl_pool, "data", "Authorization_Pool").
+
+  Capability is Component("Capability").
+
+  Capability_Empty is Component("Capability_Empty").
+  Inherit(Capability, Capability_Empty).
+
+  Capability_Missile_Super_User is Component("Capability_Missile_Super_User").
+  Inherit(Capability, Capability_Missile_Super_User).
+  Capability_Missile_Super_User_pool is Port(Capability_Missile_Super_User, "pool").
+  PortType(Capability_Missile_Super_User_pool, "data", "Missile_Pool.Impl").
+  Capability_Missile_Super_User_greater is Port(Capability_Missile_Super_User, "greater").
+  PortType(Capability_Missile_Super_User_greater, "data", "Capability.Empty").
+
+  Capability_Missile_User_Write is Component("Capability_Missile_User_Write").
+  Inherit(Capability, Capability_Missile_User_Write).
+  Capability_Missile_User_Write_pool is Port(Capability_Missile_User_Write, "pool").
+  PortType(Capability_Missile_User_Write_pool, "data", "Missile_Pool.Impl").
+  Capability_Missile_User_Write_greater is Port(Capability_Missile_User_Write, "greater").
+  PortType(Capability_Missile_User_Write_greater, "data", "Capability.Missile_Super_User").
+
+  Capability_Missile_User_Read is Component("Capability_Missile_User_Read").
+  Inherit(Capability, Capability_Missile_User_Read).
+  Capability_Missile_User_Read_pool is Port(Capability_Missile_User_Read, "pool").
+  PortType(Capability_Missile_User_Read_pool, "data", "Missile_Pool.Impl").
+  Capability_Missile_User_Read_greater is Port(Capability_Missile_User_Read, "greater").
+  PortType(Capability_Missile_User_Read_greater, "data", "Capability.Missile_User_Write").
+
+  Missile_Guidance_Network is Component("Missile_Guidance_Network").
+
+  Missile_Guidance_Network_Impl is Component("Missile_Guidance_Network_Impl").
+  Inherit(Missile_Guidance_Network, Missile_Guidance_Network_Impl).
+  Missile_Guidance_Network_Impl_missile_pool is Port(Missile_Guidance_Network_Impl, "missile_pool").
+  PortType(Missile_Guidance_Network_Impl_missile_pool, "data", "Missile_Pool.Impl").
+  Missile_Guidance_Network_Impl_missile_super_user is Port(Missile_Guidance_Network_Impl, "missile_super_user").
+  PortType(Missile_Guidance_Network_Impl_missile_super_user, "data", "Capability.Missile_Super_User").
+  Missile_Guidance_Network_Impl_missile_user_write is Port(Missile_Guidance_Network_Impl, "missile_user_write").
+  PortType(Missile_Guidance_Network_Impl_missile_user_write, "data", "Capability.Missile_User_Write").
+  Missile_Guidance_Network_Impl_missile_user_read is Port(Missile_Guidance_Network_Impl, "missile_user_read").
+  PortType(Missile_Guidance_Network_Impl_missile_user_read, "data", "Capability.Missile_User_Read").
+
+  IP_Address is Component("IP_Address").
+
+  IP_Address_Impl is Component("IP_Address_Impl").
+  Inherit(IP_Address, IP_Address_Impl).
+  IP_Address_Impl_octet1 is Port(IP_Address_Impl, "octet1").
+  PortType(IP_Address_Impl_octet1, "data", "Base_Types::Integer").
+  IP_Address_Impl_octet2 is Port(IP_Address_Impl, "octet2").
+  PortType(IP_Address_Impl_octet2, "data", "Base_Types::Integer").
+  IP_Address_Impl_octet3 is Port(IP_Address_Impl, "octet3").
+  PortType(IP_Address_Impl_octet3, "data", "Base_Types::Integer").
+  IP_Address_Impl_octet4 is Port(IP_Address_Impl, "octet4").
+  PortType(IP_Address_Impl_octet4, "data", "Base_Types::Integer").
+
+  AeroGuidance is Component("AeroGuidance").
+
+  AeroGuidance_Impl is Component("AeroGuidance_Impl").
+  Inherit(AeroGuidance, AeroGuidance_Impl).
+
+  Router is Component("Router").
+  Requires(Router, MCCellularNetwork_Impl).
+  Router_net1 is Port(Router, "net1").
+  PortType(Router_net1, "out", "MCCellularNetwork.Impl").
+  Requires(Router, MissileGuidanceBus_Impl).
+  Router_net2 is Port(Router, "net2").
+  PortType(Router_net2, "out", "MissileGuidanceBus.Impl").
+
+  Router_Impl is Component("Router_Impl").
+  Inherit(Router, Router_Impl).
+
+  MissileGuidanceUnit is Component("MissileGuidanceUnit").
+  MissileGuidanceUnit_in_target is Port(MissileGuidanceUnit, "in_target").
+  PortType(MissileGuidanceUnit_in_target, "inout", "Base_Types::Float").
+  MissileGuidanceUnit_in_abort is Port(MissileGuidanceUnit, "in_abort").
+  PortType(MissileGuidanceUnit_in_abort, "inout", "").
+  MissileGuidanceUnit_in_main is Port(MissileGuidanceUnit, "in_main").
+  PortType(MissileGuidanceUnit_in_main, "in", "").
+  Requires(MissileGuidanceUnit, MCCellularNetwork_Impl).
+  MissileGuidanceUnit_RFA is Port(MissileGuidanceUnit, "RFA").
+  PortType(MissileGuidanceUnit_RFA, "out", "MCCellularNetwork.Impl").
+
+  MissileGuidanceUnit_Impl is Component("MissileGuidanceUnit_Impl").
+  Inherit(MissileGuidanceUnit, MissileGuidanceUnit_Impl).
+  MissileGuidanceUnit_Impl_gps is Subcomponent(MissileGuidanceUnit_Impl, "gps", Gps_Impl).
+  MissileGuidanceUnit_Impl_ins is Subcomponent(MissileGuidanceUnit_Impl, "ins", Ins_Impl).
+  MissileGuidanceUnit_Impl_st is Subcomponent(MissileGuidanceUnit_Impl, "st", SeekerTrackerComponent_Impl).
+  MissileGuidanceUnit_Impl_fc is Subcomponent(MissileGuidanceUnit_Impl, "fc", FinControl_Impl).
+  MissileGuidanceUnit_Impl_network_switch is Subcomponent(MissileGuidanceUnit_Impl, "network_switch", MissileGuidanceBus_Impl).
+  MissileGuidanceUnit_Impl_router is Subcomponent(MissileGuidanceUnit_Impl, "router", Router_Impl).
+  MissileGuidanceUnit_Impl_controller is Subcomponent(MissileGuidanceUnit_Impl, "controller", ControllerBoard_Impl).
+  MissileGuidanceUnit_Impl_mgp is Subcomponent(MissileGuidanceUnit_Impl, "mgp", MissileGuidanceProgram_Impl).
+  MissileGuidanceUnit_Impl_gs is Subcomponent(MissileGuidanceUnit_Impl, "gs", GroundStation_Impl).
+  MissileGuidanceUnit_Impl_cell_net is Subcomponent(MissileGuidanceUnit_Impl, "cell_net", MCCellularNetwork_Impl).
+  PortConnection(MissileGuidanceUnit_Impl, "op1", "mgp", "out_reset", "ins", "in_reset").
+  PortConnection(MissileGuidanceUnit_Impl, "op2", "mgp", "out_reset", "gps", "in_reset").
+  PortConnection(MissileGuidanceUnit_Impl, "op3", "mgp", "out_target", "st", "in_target").
+  PortConnection(MissileGuidanceUnit_Impl, "op4", "mgp", "out_abort", "st", "in_abort").
+  PortConnection(MissileGuidanceUnit_Impl, "op6", "ins", "out_current", "st", "in_ins_current").
+  PortConnection(MissileGuidanceUnit_Impl, "op7", "gps", "out_current", "st", "in_gps_current").
+  PortConnection(MissileGuidanceUnit_Impl, "op8", "st", "out_desired", "fc", "in_desired").
+  PortConnection(MissileGuidanceUnit_Impl, "op9", "st", "out_abort", "fc", "in_abort").
+  PortConnection(MissileGuidanceUnit_Impl, "p1", "MissileGuidanceUnit_Impl", "in_target", "mgp", "in_target").
+  PortConnection(MissileGuidanceUnit_Impl, "p2", "MissileGuidanceUnit_Impl", "in_abort", "mgp", "in_abort").
+  BusConnection(MissileGuidanceUnit_Impl, "bac1", "gps", "TCPA", MissileGuidanceUnit_Impl_network_switch).
+  BusConnection(MissileGuidanceUnit_Impl, "bac2", "st", "TCPA", MissileGuidanceUnit_Impl_network_switch).
+  BusConnection(MissileGuidanceUnit_Impl, "bac3", "fc", "TCPA", MissileGuidanceUnit_Impl_network_switch).
+  BusConnection(MissileGuidanceUnit_Impl, "bac5", "ins", "TCPA", MissileGuidanceUnit_Impl_network_switch).
+  BusConnection(MissileGuidanceUnit_Impl, "bac6", "mgp", "TCPA", MissileGuidanceUnit_Impl_network_switch).
+  PortConnection(MissileGuidanceUnit_Impl, "c1", "gs", "out_target", "MissileGuidanceUnit_Impl", "in_target").
+  PortConnection(MissileGuidanceUnit_Impl, "c2", "gs", "out_abort", "MissileGuidanceUnit_Impl", "in_abort").
+  BusConnection(MissileGuidanceUnit_Impl, "bac7", "gs", "RFA", MissileGuidanceUnit_Impl_cell_net).
+  BusConnection(MissileGuidanceUnit_Impl, "bac10", "controller", "TCPA", MissileGuidanceUnit_Impl_network_switch).
+  PortConnection(MissileGuidanceUnit_Impl, "r1", "MissileGuidanceUnit_Impl", "cell_net", "router", "net1").
+  PortConnection(MissileGuidanceUnit_Impl, "r2", "MissileGuidanceUnit_Impl", "network_switch", "router", "net2").
+  MissileGuidanceUnit_Impl_props is AttributeGroup(MissileGuidanceUnit_Impl, "Properties").
+
 }

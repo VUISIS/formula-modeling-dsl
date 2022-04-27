@@ -6,31 +6,72 @@ domain Intermediate
     Component ::= new (name : String).
 
     Condition ::= new (comp : Component, name : String).
+    InitialCondition ::= new (comp : Component, cond : Condition).
 
-    Connection ::= new (from : Component, to: Component).
-    ConditionalConnection ::= new (from : Component, to : Component, cond : Condition).
+    Connection ::= new (name : String, from: Component+Subcomponent+Port, to: Component+Subcomponent+Port).
+    ConditionalConnection ::= new (name : String, from: Component+Port, to : Component+Subcomponent+Port, cond : Condition).
 
-    Subcomponent ::= new (from : Component, to: Component).
-    ConditionalSubcomponent ::= new (from : Component, to : Component, cond : Condition).
+    Subcomponent ::= new (from : Component, name: String, to: Component).
+    ConditionalSubcomponent ::= new (from : Component, name: String, to : Component, cond : Condition).
     Requires ::= new (comp : Component, needs: Component).
     
-    Port ::= new (component: Component, name : String, type : String, dataType : String).
+    Port ::= new (component: Component, name : String).
+    PortType ::= new (port : Port, type : String, dataType : String).
     
     Attributable ::= Component + Subcomponent + Connection + ConditionalConnection + ConditionalSubcomponent.
 
     AttributeGroup ::= new (Attributeable: Attributable, name : String).
-    Attribute ::= new (group : AttributeGroup, name : String, value : Integer+String+Boolean).
+    Attribute ::= new (group : AttributeGroup, name : String, value : Real+Integer+String+Boolean).
 
     Inherit ::= new (parent : Component, child : Component).
 
+    PortConnection ::= new (comp : Component, name : String,
+        fromSub : String, fromPort : String, toSub : String, toPort : String).
+    BusConnection ::= new (comp : Component, name : String,
+        fromSub : String, fromPort : String, toSubcomponent : Subcomponent).
+
     Condition(comp, name) :- Inherit(parent, comp), Condition(parent, name).
-    Connection(comp, to) :- Inherit(parent, comp), Connection(parent, to).
-    Subcomponent(comp, to) :- Inherit(parent, comp), Subcomponent(parent, to).
+    Connection(name, from, to) :- from is Component, Inherit(parent, from),
+        Connection(name, parent, to).
+    Connection(name, from, to) :- Port(fcomp, fname), Inherit(parent, fcomp),
+        Port(parent, fname),
+        from=Port(fcomp, fname),
+        Connection(name, from, to), to is Component.
+    Connection(name, from, to) :- Port(fcomp, fname), Inherit(parent, fcomp),
+        Port(parent, fname),
+        from=Port(fcomp, fname),
+        Port(tparent, tname), Inherit(tparent, tcomp),
+        to=Port(tcomp, tname),
+        Connection(name, from, to).
+    Connection(name, from, to) :- PortConnection(comp, name, fromSubName, fromPortName, toSubName, toPortName),
+        Subcomponent(comp, fromSubName, fromSub),
+        from=Port(fromSub, fromPortName),
+        Subcomponent(comp, toSubName, toSub),
+        to=Port(toSub, toPortName).
+    Connection(name, from, toSubcomponent) :- BusConnection(comp, name, fromSubName, fromPortName, toSubcomponent),
+        Subcomponent(comp, fromSubName, fromSub),
+        from=Port(fromSub, fromPortName).
+    ConditionalConnection(name, from, to, cond) :- from is Component, Inherit(parent, from),
+        ConditionalConnection(name, parent, to, cond).
+    ConditionalConnection(name, from, to, cond) :- Port(fcomp, fname), Inherit(parent, fcomp),
+        Port(parent, fname),
+        from=Port(comp, fname),
+        ConditionalConnection(name, from, to, cond), to is Component.
+    ConditionalConnection(name, from, to, cond) :- Port(fcomp, fname), Inherit(parent, fcomp),
+        from=Port(parent, fname),
+        Port(tparent, tname), Inherit(tparent, tcomp),
+        to=Port(tcomp, tname),
+        ConditionalConnection(name, from, to, cond).
+
+    Subcomponent(comp, name, to) :- Inherit(parent, comp), Subcomponent(parent, name, to).
+    ConditionalSubcomponent(comp, name, to, cond) :- Inherit(parent, comp), ConditionalSubcomponent(parent, name, to, cond).
     Requires(comp, needs) :- Inherit(parent, comp), Requires(parent, needs).
-    Port(comp, name, type, dataType) :- Inherit(parent, comp), Port(parent, name, type, dataType).
+    Port(comp, name) :- Inherit(parent, comp), Port(parent, name).
+    PortType(compPort, type, dataType) :- Inherit(parent, comp), parentPort=Port(parent, name), compPort=Port(comp, name),
+        PortType(parentPort, type, dataType).
     AttributeGroup(comp, name) :- Inherit(parent, comp), AttributeGroup(parent, name).
 
-    missingRequired :- Requires(comp, needs), Subcomponent(parent, comp), no Subcomponent(parent, needs).
+    missingRequired :- Requires(comp, needs), Subcomponent(parent, _, comp), no Subcomponent(parent, _, needs).
 
     conforms no missingRequired.
 }
