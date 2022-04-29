@@ -292,6 +292,9 @@ class AADLToIntermediate:
                         full_feature_name, current_component, feature_name))
                     out_file.write("  PortType({}, \"{}\", \"{}\").\n".format(
                         full_feature_name, t, data_type))
+                    out_file.write("  PortRequires({}, {}).\n".format(
+                        full_feature_name, self.convert_name(keywords[-1])
+                    ))
                 elif "port" in keywords:
                     out_file.write("  {} is Port({}, \"{}\").\n".format(
                         full_feature_name, current_component, feature_name))
@@ -432,6 +435,8 @@ class AADLToIntermediate:
                         to_parts[0], to_parts[1]
                     ))
                 elif is_bus:
+                    if "." in keywords[1] and "." not in keywords[0]:
+                        keywords = [keywords[1], keywords[0]]
                     from_parts = keywords[0].split(".", 1)
                     if len(from_parts) == 1:
                         from_parts = [current_component, keywords[0]]

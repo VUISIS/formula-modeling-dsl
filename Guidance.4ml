@@ -34,6 +34,7 @@ model missile_guidance_v5 of Intermediate at "Intermediate.4ml"
   Requires(Gps, MissileGuidanceBus_Impl).
   Gps_TCPA is Port(Gps, "TCPA").
   PortType(Gps_TCPA, "out", "MissileGuidanceBus.Impl").
+  PortRequires(Gps_TCPA, MissileGuidanceBus_Impl).
 
   Gps_Impl is Component("Gps_Impl").
   Inherit(Gps, Gps_Impl).
@@ -55,6 +56,7 @@ model missile_guidance_v5 of Intermediate at "Intermediate.4ml"
   Requires(Ins, MissileGuidanceBus_Impl).
   Ins_TCPA is Port(Ins, "TCPA").
   PortType(Ins_TCPA, "out", "MissileGuidanceBus.Impl").
+  PortRequires(Ins_TCPA, MissileGuidanceBus_Impl).
 
   Ins_Impl is Component("Ins_Impl").
   Inherit(Ins, Ins_Impl).
@@ -74,6 +76,7 @@ model missile_guidance_v5 of Intermediate at "Intermediate.4ml"
   Requires(ThreeAxisAccelerometer, MissileGuidanceBus_Impl).
   ThreeAxisAccelerometer_TCPA is Port(ThreeAxisAccelerometer, "TCPA").
   PortType(ThreeAxisAccelerometer_TCPA, "out", "MissileGuidanceBus.Impl").
+  PortRequires(ThreeAxisAccelerometer_TCPA, MissileGuidanceBus_Impl).
 
   ThreeAxisAccelerometer_Impl is Component("ThreeAxisAccelerometer_Impl").
   Inherit(ThreeAxisAccelerometer, ThreeAxisAccelerometer_Impl).
@@ -93,6 +96,7 @@ model missile_guidance_v5 of Intermediate at "Intermediate.4ml"
   Requires(FinControl, MissileGuidanceBus_Impl).
   FinControl_TCPA is Port(FinControl, "TCPA").
   PortType(FinControl_TCPA, "out", "MissileGuidanceBus.Impl").
+  PortRequires(FinControl_TCPA, MissileGuidanceBus_Impl).
 
   FinControl_Impl is Component("FinControl_Impl").
   Inherit(FinControl, FinControl_Impl).
@@ -126,6 +130,7 @@ model missile_guidance_v5 of Intermediate at "Intermediate.4ml"
   Requires(SeekerTrackerComponent, MissileGuidanceBus_Impl).
   SeekerTrackerComponent_TCPA is Port(SeekerTrackerComponent, "TCPA").
   PortType(SeekerTrackerComponent_TCPA, "out", "MissileGuidanceBus.Impl").
+  PortRequires(SeekerTrackerComponent_TCPA, MissileGuidanceBus_Impl).
   SeekerTrackerComponent_props is AttributeGroup(SeekerTrackerComponent, "Properties").
   Attribute(SeekerTrackerComponent_props, "TA1_Properties::current_range", 0.0).
 
@@ -138,6 +143,7 @@ model missile_guidance_v5 of Intermediate at "Intermediate.4ml"
   Requires(TimeToAbortMission, MissileGuidanceBus_Impl).
   TimeToAbortMission_TCPA is Port(TimeToAbortMission, "TCPA").
   PortType(TimeToAbortMission_TCPA, "out", "MissileGuidanceBus.Impl").
+  PortRequires(TimeToAbortMission_TCPA, MissileGuidanceBus_Impl).
 
   TimeToAbortMission_Impl is Component("TimeToAbortMission_Impl").
   Inherit(TimeToAbortMission, TimeToAbortMission_Impl).
@@ -160,6 +166,7 @@ model missile_guidance_v5 of Intermediate at "Intermediate.4ml"
   Requires(MissileGuidanceProgram, MissileGuidanceBus_Impl).
   MissileGuidanceProgram_TCPA is Port(MissileGuidanceProgram, "TCPA").
   PortType(MissileGuidanceProgram_TCPA, "out", "MissileGuidanceBus.Impl").
+  PortRequires(MissileGuidanceProgram_TCPA, MissileGuidanceBus_Impl).
 
   MissileGuidanceProgram_Impl is Component("MissileGuidanceProgram_Impl").
   Inherit(MissileGuidanceProgram, MissileGuidanceProgram_Impl).
@@ -185,6 +192,7 @@ model missile_guidance_v5 of Intermediate at "Intermediate.4ml"
   Requires(ControllerBoard, MissileGuidanceBus_Impl).
   ControllerBoard_TCPA is Port(ControllerBoard, "TCPA").
   PortType(ControllerBoard_TCPA, "out", "MissileGuidanceBus.Impl").
+  PortRequires(ControllerBoard_TCPA, MissileGuidanceBus_Impl).
   ControllerBoard_initialize is Port(ControllerBoard, "initialize").
   PortType(ControllerBoard_initialize, "in", "").
   ControllerBoard_navigation_test is Port(ControllerBoard, "navigation_test").
@@ -237,6 +245,7 @@ model missile_guidance_v5 of Intermediate at "Intermediate.4ml"
   Requires(GroundStation, MCCellularNetwork_Impl).
   GroundStation_RFA is Port(GroundStation, "RFA").
   PortType(GroundStation_RFA, "out", "MCCellularNetwork.Impl").
+  PortRequires(GroundStation_RFA, MCCellularNetwork_Impl).
   GroundStation_sent_command is Port(GroundStation, "sent_command").
   PortType(GroundStation_sent_command, "in", "").
   GroundStation_sent_command_abort is Port(GroundStation, "sent_command_abort").
@@ -383,9 +392,11 @@ model missile_guidance_v5 of Intermediate at "Intermediate.4ml"
   Requires(Router, MCCellularNetwork_Impl).
   Router_net1 is Port(Router, "net1").
   PortType(Router_net1, "out", "MCCellularNetwork.Impl").
+  PortRequires(Router_net1, MCCellularNetwork_Impl).
   Requires(Router, MissileGuidanceBus_Impl).
   Router_net2 is Port(Router, "net2").
   PortType(Router_net2, "out", "MissileGuidanceBus.Impl").
+  PortRequires(Router_net2, MissileGuidanceBus_Impl).
 
   Router_Impl is Component("Router_Impl").
   Inherit(Router, Router_Impl).
@@ -400,6 +411,7 @@ model missile_guidance_v5 of Intermediate at "Intermediate.4ml"
   Requires(MissileGuidanceUnit, MCCellularNetwork_Impl).
   MissileGuidanceUnit_RFA is Port(MissileGuidanceUnit, "RFA").
   PortType(MissileGuidanceUnit_RFA, "out", "MCCellularNetwork.Impl").
+  PortRequires(MissileGuidanceUnit_RFA, MCCellularNetwork_Impl).
 
   MissileGuidanceUnit_Impl is Component("MissileGuidanceUnit_Impl").
   Inherit(MissileGuidanceUnit, MissileGuidanceUnit_Impl).
@@ -432,8 +444,8 @@ model missile_guidance_v5 of Intermediate at "Intermediate.4ml"
   PortConnection(MissileGuidanceUnit_Impl, "c2", "gs", "out_abort", "MissileGuidanceUnit_Impl", "in_abort").
   BusConnection(MissileGuidanceUnit_Impl, "bac7", "gs", "RFA", MissileGuidanceUnit_Impl_cell_net).
   BusConnection(MissileGuidanceUnit_Impl, "bac10", "controller", "TCPA", MissileGuidanceUnit_Impl_network_switch).
-  PortConnection(MissileGuidanceUnit_Impl, "r1", "MissileGuidanceUnit_Impl", "cell_net", "router", "net1").
-  PortConnection(MissileGuidanceUnit_Impl, "r2", "MissileGuidanceUnit_Impl", "network_switch", "router", "net2").
+  BusConnection(MissileGuidanceUnit_Impl, "r1", "router", "net1", MissileGuidanceUnit_Impl_cell_net).
+  BusConnection(MissileGuidanceUnit_Impl, "r2", "router", "net2", MissileGuidanceUnit_Impl_network_switch).
   MissileGuidanceUnit_Impl_props is AttributeGroup(MissileGuidanceUnit_Impl, "Properties").
 
 }

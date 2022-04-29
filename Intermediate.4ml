@@ -17,6 +17,7 @@ domain Intermediate
     
     Port ::= new (component: Component, name : String).
     PortType ::= new (port : Port, type : String, dataType : String).
+    PortRequires ::= new (port : Port, needs: Component).
     
     Attributable ::= Component + Subcomponent + Connection + ConditionalConnection + ConditionalSubcomponent.
 
@@ -63,15 +64,35 @@ domain Intermediate
         to=Port(tcomp, tname),
         ConditionalConnection(name, from, to, cond).
 
+    IsSubclass ::= new (item : Component, parent : Component).
+    IsSubclass(item, parent) :- Inherit(parent, item).
+    IsSubclass(item, parent) :- Inherit(parent2, item), IsSubclass(parent2, parent).
+        
+    PortSubcomponentConnection ::= new (port: Port, comp: Component).
+    PortSubcomponentConnection(port, comp) :- Connection(_, port, subcomp), 
+        port=Port(portParent,_), Subcomponent(parent, _, portParent), subcomp=Subcomponent(parent, _, comp).
+    PortSubcomponentConnection(port, comp) :- Connection(_, port, targetPort), port=Port(portParent,_),
+        Subcomponent(parent, _, portParent), Subcomponent(parent, _, comp), targetPort=Port(comp, _).
+    
     Subcomponent(comp, name, to) :- Inherit(parent, comp), Subcomponent(parent, name, to).
     ConditionalSubcomponent(comp, name, to, cond) :- Inherit(parent, comp), ConditionalSubcomponent(parent, name, to, cond).
     Requires(comp, needs) :- Inherit(parent, comp), Requires(parent, needs).
     Port(comp, name) :- Inherit(parent, comp), Port(parent, name).
     PortType(compPort, type, dataType) :- Inherit(parent, comp), parentPort=Port(parent, name), compPort=Port(comp, name),
         PortType(parentPort, type, dataType).
+    PortRequires(port, comp) :- Inherit(parent, pcomp), pport=Port(parent, name), port=Port(pcomp, name),
+        PortRequires(pport, comp).
     AttributeGroup(comp, name) :- Inherit(parent, comp), AttributeGroup(parent, name).
 
-    missingRequired :- Requires(comp, needs), Subcomponent(parent, _, comp), no Subcomponent(parent, _, needs).
+    RequiredPortConnection ::= new (port : Port, comp : Component).
+    RequiredPortConnection(port, comp) :- PortRequires(port, comp), PortSubcomponentConnection(port, comp).
 
-    conforms no missingRequired.
+    MissingPortConnection ::= new (port : Port, comp : Component).
+    MissingPortConnection(port, comp) :- PortRequires(port, comp), no PortSubcomponentConnection(port, comp),
+        port=Port(parent, _), Subcomponent(_, _, parent).
+
+    missingRequired :- Requires(comp, needs), Subcomponent(parent, _, comp), no Subcomponent(parent, _, needs).
+    allRequiredPortsConnected :- no MissingPortConnection(port, comp).
+
+    conforms no missingRequired, allRequiredPortsConnected.
 }
