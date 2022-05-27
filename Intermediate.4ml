@@ -19,6 +19,20 @@ domain Intermediate
     PortType ::= new (port : Port, type : String, dataType : String).
     PortRequires ::= new (port : Port, needs: Component).
     
+    EventGroup ::= new (name : String).
+    Event ::= new (name : String).
+    EventInGroup ::= new (group : EventGroup, event : Event).
+    
+    EventParameter ::= new (parent: Event, paramNumber: Integer, paramType: String).
+    
+    ComponentSendsEvent ::= new (component : Component, event : Event).
+    ComponentSendsEventGroup ::= new (component : Component, group : EventGroup).
+    ComponentReceivesEvent ::= new (component : Component, event : Event).
+    ComponentReceivesEventGroup ::= new (component : Component, group : EventGroup).
+    
+    ComponentSendsEvent(comp, event) :- ComponentSendsEventGroup(comp, group), EventInGroup(group, event).
+    ComponentReceivesEvent(comp, event) :- ComponentSendsEventGroup(comp, group), EventInGroup(group, event).
+
     Attributable ::= Component + Subcomponent + Connection + ConditionalConnection + ConditionalSubcomponent.
 
     AttributeGroup ::= new (Attributeable: Attributable, name : String).
@@ -68,12 +82,17 @@ domain Intermediate
     IsSubclass(item, parent) :- Inherit(parent, item).
     IsSubclass(item, parent) :- Inherit(parent2, item), IsSubclass(parent2, parent).
         
+
     PortSubcomponentConnection ::= new (port: Port, comp: Component).
     PortSubcomponentConnection(port, comp) :- Connection(_, port, subcomp), 
         port=Port(portParent,_), Subcomponent(parent, _, portParent), subcomp=Subcomponent(parent, _, comp).
     PortSubcomponentConnection(port, comp) :- Connection(_, port, targetPort), port=Port(portParent,_),
         Subcomponent(parent, _, portParent), Subcomponent(parent, _, comp), targetPort=Port(comp, _).
     
+    ComponentSendsEvent(comp, event) :- Inherit(parent, comp), ComponentSendsEvent(parent, event).
+    ComponentSendsEventGroup(comp, eventGroup) :- Inherit(parent, comp), ComponentSendsEventGroup(parent, eventGroup).
+    ComponentReceivesEvent(comp, event) :- Inherit(parent, comp), ComponentReceivesEvent(parent, event).
+    ComponentReceivesEventGroup(comp, eventGroup) :- Inherit(parent, comp), ComponentReceivesEventGroup(parent, eventGroup).
     Subcomponent(comp, name, to) :- Inherit(parent, comp), Subcomponent(parent, name, to).
     ConditionalSubcomponent(comp, name, to, cond) :- Inherit(parent, comp), ConditionalSubcomponent(parent, name, to, cond).
     Requires(comp, needs) :- Inherit(parent, comp), Requires(parent, needs).
