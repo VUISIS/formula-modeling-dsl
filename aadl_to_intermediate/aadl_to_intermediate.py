@@ -11,6 +11,8 @@ class AADLToIntermediate:
         self.IN_SUBCOMPONENTS = 4
         self.IN_CONNECTIONS = 5
         self.AWAITING_COMPONENT = 6
+        self.IN_SUBPROGRAM = 7
+        self.IN_SUBPROGRAM_IMPL = 8
 
         self.package_match = re.compile("package +([^ ]*)")
         self.system_extends_match = re.compile("system +([^ ]*) +extends +([^ ]*)")
@@ -27,7 +29,8 @@ class AADLToIntermediate:
         self.data_implementation_match = re.compile("data implementation *([^.]*)\\.(.*)")
         self.data_implementation_extends_match = re.compile("data implementation *([^.]*)\\.(.*) +extends (.*)")
         self.end_match = re.compile("end +(.*);")
-
+        self.subprogram_impl_match = re.compile("subprogram +implementation +(.*)")
+        self.subprogram_match = re.compile("subprogram +(.*)")
         self.property_match = re.compile("([^ ]*) +=> +(.*)")
 
         self.end_comment_match = re.compile("(.*) -- .*")
@@ -203,6 +206,22 @@ class AADLToIntermediate:
                 out_file.write("  {} is Component(\"{}\").\n".format(name, name))
                 continue
 
+            m = self.subprogram_impl_match.match(line)
+            if m is not None:
+                name = self.convert_name(m.group(1))
+                current_component = name
+                created_properties_group = False
+                mode = self.IN_SUBPROGRAM_IMPL
+                continue
+
+            m = self.subprogram_match.match(line)
+            if m is not None:
+                name = self.convert_name(m.group(1))
+                current_component = name
+                created_properties_group = False
+                mode = self.IN_SUBPROGRAM
+                continue
+
             m = self.end_match.match(line)
             if m is not None:
                 current_component = ""
@@ -212,6 +231,9 @@ class AADLToIntermediate:
                     out_file.write("}")
                 else:
                     out_file.write("\n")
+                continue
+
+            if mode == self.IN_SUBPROGRAM or mode == self.IN_SUBPROGRAM_IMPL:
                 continue
 
             if line == "features":
@@ -373,7 +395,11 @@ class AADLToIntermediate:
                     is_system = True
                     keywords.remove("system")
 
-                if len(keywords) != 1:
+                is_subprogram = False
+                if "subprogram" in keywords:
+                    is_subprogram = True
+
+                if not is_subprogram and len(keywords) != 1:
                     print("Unexpected keywords in: "+line)
                     continue
 
@@ -382,7 +408,7 @@ class AADLToIntermediate:
                         current_component+"_"+subcomponent_name, current_component, subcomponent_name))
                     out_file.write("  PortType({}, \"data\", \"{}\").\n".format(
                         current_component + "_" + subcomponent_name, keywords[0]))
-                else:
+                elif not is_subprogram:
                     out_file.write("  {} is Subcomponent({}, \"{}\", {}).\n".format(
                         current_component+"_"+subcomponent_name, current_component, subcomponent_name, self.convert_name(keywords[0])))
 
@@ -458,6 +484,10 @@ class AADLToIntermediate:
                     to_name = current_component + "_" + self.convert_name(keywords[1])
                     out_file.write("  Connection({}, {}, {}, {}).\n".format(
                         current_component, connection_name, from_name, to_name))
+            elif mode == self.IN_SUBPROGRAM_IMPL:
+                pass
+            elif mode == self.IN_SUBPROGRAM:
+                pass
 
 
 
